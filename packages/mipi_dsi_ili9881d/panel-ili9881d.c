@@ -24,11 +24,11 @@ static const struct drm_display_mode ili9881d_modes = {
 	.vtotal		= 1280 + 10 + 20 + 30,
 };
 
-static int ili9881d_get_modes(struct drm_panel *panel, struct drm_connector *connector)
+static int ili9881d_get_modes(struct drm_panel *panel)
 {
 	struct drm_display_mode *mode;
 
-	mode = drm_mode_duplicate(connector->dev, &ili9881d_modes);
+	mode = drm_mode_duplicate(&ili9881d_modes);
 	if (!mode) {
 		dev_err(panel->dev, "failed to add mode %ux%u@%u\n",
 			mode->hdisplay, mode->vdisplay,
@@ -38,9 +38,9 @@ static int ili9881d_get_modes(struct drm_panel *panel, struct drm_connector *con
 	mode->type = DRM_MODE_TYPE_DRIVER | DRM_MODE_TYPE_PREFERRED;
 	drm_mode_set_name(mode);
 
-	connector->display_info.width_mm = mode->width_mm;
-	connector->display_info.height_mm = mode->height_mm;
-	drm_mode_probed_add(connector, mode);
+	// connector->display_info.width_mm = mode->width_mm;
+	// connector->display_info.height_mm = mode->height_mm;
+	// drm_mode_probed_add(connector, mode);
 
 	return 1;
 }

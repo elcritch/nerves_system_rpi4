@@ -239,15 +239,15 @@ static int panel_disable(struct drm_panel * panel)
 	return ret;
 }
 
-static int panel_get_modes(struct drm_panel *panel, struct drm_connector *connector)
+static int panel_get_modes(struct drm_panel *panel)
 {
 	int ret = 0;
 	struct i2c_mipi_dsi *md = panel_to_md(panel);
 	const struct drm_panel_funcs *funcs = md->panel_data->funcs;
 
-//	DBG_FUNC("");
+	//	DBG_FUNC("");
 	if (funcs && funcs->get_modes) {
-		ret = funcs->get_modes(panel, connector);
+		ret = funcs->get_modes(panel);
 		if (ret < 0)
 			return ret;
 	}
@@ -353,7 +353,7 @@ static int i2c_md_probe(struct i2c_client *i2c, const struct i2c_device_id *id)
 	}
 
 	md->panel_data->set_dsi(md->dsi);
-	drm_panel_init(&md->panel, dev, &panel_funcs, DRM_MODE_CONNECTOR_DSI);
+	drm_panel_init(&md->panel, dev, &panel_funcs);
 	drm_panel_add(&md->panel);
 
 	tp_init(md);

@@ -4,18 +4,22 @@
 #
 # MIT License
 #
-KVERSION ?= $(shell uname -r)
+# KVERSION ?= $(shell uname -r)
 
-obj-m := mipi_dsi.o
-mipi_dsi-objs := mipi_dsi_drv.o		\
+obj-m := mipi_dsi_ili9881d.o
+mipi_dsi_ili9881d-objs := mipi_dsi_drv.o		\
 				 touch_panel.o		\
 				 panel-ili9881d.o
 
-all:
-	$(MAKE) -C /lib/modules/$(KVERSION)/build M=$(PWD) modules
+ccflags-y := -DDEBUG -g -std=gnu99 -Werror -Wno-declaration-after-statement -Wframe-larger-than=1000000000
 
-install:
-	$(MAKE) -C /lib/modules/$(KVERSION)/build M=$(shell pwd) modules_install
+.PHONY: all clean
+
+modules:
+	$(MAKE) -C ‘$(LINUX_DIR)’ M=’$(PWD)’ modules
+
+all:
+	$(MAKE) -C '$(LINUX_DIR)' M='$(PWD)' modules
 
 clean:
-	$(MAKE) -C /lib/modules/$(KVERSION)/build M=$(PWD) clean
+	$(MAKE) -C '$(LINUX_DIR)' M='$(PWD)' clean
