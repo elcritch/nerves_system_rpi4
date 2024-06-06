@@ -1,0 +1,105 @@
+#? replace(sub = "!", by = "") | replace(sub = "%TAG", by = "# ") | replace(sub = "#: ", by = "")
+#: import ants/language_v1
+#: import cimport_options
+%TAG ! tag:github.com/elcritch/ants
+--- !antStart
+
+name: Build Firmware
+
+on:
+  push:
+    branches: 
+      - "*"
+    tags:
+      - "v*"
+
+env:
+  REPO: ghcr.io/lucentwater/esp32_sensor_router
+
+jobs:
+  build: !test
+
+    env:
+      FWUP_VERSION: "1.10.1"
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: Env
+      run: |
+        env
+    
+    - uses: webfactory/ssh-agent@v0.9.0
+      with:
+        ssh-private-key: |
+          ${{ secrets.SSH_KV_BUILD_KEY }}
+          ${{ secrets.SSH_TRO_FW_BUILD_KEY }}
+          ${{ secrets.SSH_TRO_WA }}
+          ${{ secrets.SSH_DK_WA }}
+
+
+    - name: Cache deps
+      id: cache-deps
+      uses: actions/cache@v3
+      env:
+        cache-name: cache-elixir-deps
+      with:
+        path: deps
+        key: ${{ runner.os }}-mix-${{ env.cache-name }}-${{ hashFiles('**/mix.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-mix-${{ env.cache-name }}-
+
+    - name: Cache compiled build
+      id: cache-build
+      uses: actions/cache@v3
+      env:
+        cache-name: cache-compiled-build
+      with:
+        path: _build
+        key: ${{ runner.os }}-mix-${{ env.cache-name }}-${{ hashFiles('**/mix.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-mix-${{ env.cache-name }}-
+          ${{ runner.os }}-mix-
+
+    - name: Install system deps
+      run: |
+        wget https://github.com/fwup-home/fwup/releases/download/v${FWUP_VERSION}/fwup_${FWUP_VERSION}_amd64.deb
+        sudo dpkg -i fwup_1.10.1_amd64.deb && rm fwup_1.10.1_amd64.deb
+
+        sudo apt install -y build-essential automake autoconf git squashfs-tools ssh-askpass pkg-config curl libmnl-dev
+        sudo apt install -y libssl-dev libncurses5-dev bc m4 unzip cmake python3
+
+    - name: Set up Elixir
+      uses: erlef/setup-beam@v1
+      with:
+        otp-version: 24.3.4.17
+        elixir-version: 1.13.4-otp-24
+
+    - name: Setup Nerves
+      run: |
+        mix local.hex
+        mix local.rebar
+        mix archive.install --force hex nerves_bootstrap 1.11.5
+
+    - uses: actions/checkout@v3
+      with:
+        submodules: recursive
+    
+    - name: Mix Deps
+      run: |
+        source env.tro_display_unit
+        mix deps.get
+
+    - name: Mix Firmware
+      run: |
+        source env.tro_display_unit
+        mix nerves.artifact
+
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v2
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
