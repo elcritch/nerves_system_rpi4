@@ -57,6 +57,11 @@ jobs:
         mix deps.get
         ./deps/nerves_system_br/create-build.sh nerves_defconfig _build
 
+
+    - name: Cat Config
+      run: |
+        cat _build/.config
+
     - name: Build Firmware
       run: |
         cd _build
