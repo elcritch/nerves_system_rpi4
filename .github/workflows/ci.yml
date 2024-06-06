@@ -16,6 +16,8 @@ on:
 jobs:
   build: !test
 
+    timeout-minutes: 360
+
     env:
       FWUP_VERSION: "1.10.1"
 
