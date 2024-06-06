@@ -52,6 +52,7 @@ jobs:
     
     - name: Setup Build
       run: |
+        mix deps.get
         ./deps/nerves_system_br/create-build.sh nerves_defconfig _build
 
     - name: Build Firmware
