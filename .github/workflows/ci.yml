@@ -52,11 +52,13 @@ jobs:
       with:
         submodules: recursive
     
-    - name: Setup Build
+    - name: Mix Deps
       run: |
         mix deps.get
-        ./deps/nerves_system_br/create-build.sh nerves_defconfig _build
 
+    - name: Setup Build
+      run: |
+        ./deps/nerves_system_br/create-build.sh nerves_defconfig _build
 
     - name: Cat Config
       run: |
