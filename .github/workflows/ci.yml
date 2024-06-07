@@ -44,6 +44,8 @@ jobs:
 
     - name: Setup Nerves
       run: |
+        # asdf install erlang 26.2.5 && asdf global erlang 26.2.5
+        # asdf install elixir 1.16.3-otp-26 && asdf global elixir 1.16.3-otp-26
         mix local.hex
         mix local.rebar
         mix archive.install --force hex nerves_bootstrap
