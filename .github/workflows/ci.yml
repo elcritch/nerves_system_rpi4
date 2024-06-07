@@ -1,0 +1,85 @@
+#? replace(sub = "!", by = "") | replace(sub = "%TAG", by = "# ") | replace(sub = "#: ", by = "")
+#: import ants/language_v1
+#: import cimport_options
+%TAG ! tag:github.com/elcritch/ants
+--- !antStart
+
+name: Build Firmware
+
+on:
+  push:
+    # branches: 
+    #   - "*"
+    # tags:
+    #   - "v*"
+
+jobs:
+  build: !test
+
+    timeout-minutes: 360
+
+    env:
+      FWUP_VERSION: "1.10.1"
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: Install system deps
+      run: |
+        wget https://github.com/fwup-home/fwup/releases/download/v${FWUP_VERSION}/fwup_${FWUP_VERSION}_amd64.deb
+        sudo dpkg -i fwup_1.10.1_amd64.deb && rm fwup_1.10.1_amd64.deb
+
+        sudo apt install -y build-essential automake autoconf git \
+                squashfs-tools ssh-askpass \
+                pkg-config curl libmnl-dev \
+                libssl-dev libncurses5-dev bc \
+                m4 unzip cmake python3
+
+    - name: Set up Elixir
+      uses: erlef/setup-beam@v1
+      with:
+        otp-version: 26.2.5
+        elixir-version: 1.16.3-otp-26
+
+    - name: Setup Nerves
+      run: |
+        git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.14.0
+        echo '. "$HOME/.asdf/asdf.sh"' >> ~/.zshrc
+        asdf plugin add erlang
+        asdf plugin add elixir
+        asdf install erlang 26.2.5 && asdf global erlang 26.2.5
+        asdf install elixir 1.16.3-otp-26 && asdf global elixir 1.16.3-otp-26
+        mix local.hex --force
+        mix local.rebar --force
+        mix local.hex
+        mix local.rebar
+        mix archive.install --force hex nerves_bootstrap
+
+    - uses: actions/checkout@v3
+      with:
+        submodules: recursive
+    
+    - name: Mix Deps
+      run: |
+        mix deps.get
+
+    - name: Setup Build
+      run: |
+        ./deps/nerves_system_br/create-build.sh nerves_defconfig _build
+
+    - name: Cat Config
+      run: |
+        cat _build/.config
+
+    - name: Build Firmware
+      run: |
+        cd _build
+        make > outputs.log
+
+    - name: Build System
+      run: |
+        cd _build
+        make system
+        ls -lh
+
