@@ -67,7 +67,11 @@ jobs:
     - name: Build Firmware
       run: |
         cd _build
-        make
+        make > outputs.log
+
+    - name: Build System
+      run: |
+        cd _build
         make system
         ls -lh
 
