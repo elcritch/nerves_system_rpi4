@@ -46,14 +46,13 @@ jobs:
       run: |
         git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.14.0
         echo '. "$HOME/.asdf/asdf.sh"' >> ~/.zshrc
+        source ~/.zshrc
         asdf plugin add erlang
         asdf plugin add elixir
         asdf install erlang 26.2.5 && asdf global erlang 26.2.5
         asdf install elixir 1.16.3-otp-26 && asdf global elixir 1.16.3-otp-26
         mix local.hex --force
         mix local.rebar --force
-        mix local.hex
-        mix local.rebar
         mix archive.install --force hex nerves_bootstrap
 
     - uses: actions/checkout@v3
