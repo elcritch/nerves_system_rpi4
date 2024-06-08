@@ -34,7 +34,7 @@ jobs:
                 squashfs-tools ssh-askpass \
                 pkg-config curl libmnl-dev \
                 libssl-dev libncurses5-dev bc \
-                m4 unzip cmake python3
+                m4 unzip cmake python3 aqlite-dev aqlite
 
     - name: Set up Elixir
       uses: erlef/setup-beam@v1
