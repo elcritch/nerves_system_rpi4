@@ -1,12 +1,10 @@
-diff --git a/deps/nerves_system_br/buildroot/package/qt5/qt5webengine/qt5webengine.mk b/deps/nerves_system_br/buildroot/package/qt5/qt5webengine/qt5webengine.mk.orig
-index c028246..836ba62 100644
---- a/deps/nerves_system_br/buildroot/package/qt5/qt5webengine/qt5webengine.mk
-+++ b/deps/nerves_system_br/buildroot/package/qt5/qt5webengine/qt5webengine.mk.orig
-@@ -87,6 +87,7 @@ QT5WEBENGINE_DEPENDENCIES += \
+--- ./deps/nerves_system_br/buildroot-2022.11.3/package/qt5/qt5webengine/qt5webengine.mk.orig
++++ ./deps/nerves_system_br/buildroot-2022.11.3/package/qt5/qt5webengine/qt5webengine.mk
+@@ -87,7 +87,6 @@ QT5WEBENGINE_DEPENDENCIES += \
  QT5WEBENGINE_CONF_OPTS += \
  	-webengine-embedded-build \
  	-webengine-ffmpeg \
-+	-webengine-icu \
+-	-webengine-icu \
  	-webengine-opus \
  	-webengine-webchannel \
  	-webengine-webp \
